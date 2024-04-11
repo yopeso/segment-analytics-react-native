@@ -1,4 +1,6 @@
+#if os(iOS)
 import CoreTelephony
+#endif
 import SystemConfiguration
 import UIKit
 import AdSupport
@@ -51,6 +53,8 @@ public class AnalyticsReactNative: NSObject {
         SCNetworkReachabilityGetFlags(reachability, &flags)
 
         let isReachable = flags.contains(.reachable)
+
+        #if os(iOS)
         let isWWAN = flags.contains(.isWWAN)
 
         if isReachable {
@@ -74,6 +78,12 @@ public class AnalyticsReactNative: NSObject {
                 return ConnectionType.wifi
             }
         }
+        #elseif os(tvOS)
+        if isReachable {
+            // tvOS only supports WiFi (or Ethernet) connections
+            return ConnectionType.wifi
+        }
+        #endif
 
         return ConnectionType.unknown
     }
